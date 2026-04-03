@@ -240,6 +240,8 @@ python main.py
 ---
 
 > This guide was created by [itouakirai](https://github.com/itouakirai/docs) up to step 3 (before step 4). This section has been extracted from their docs. If you encounter any issues with the wrapper installation, please open an issue [here](https://github.com/itouakirai/docs/issues/new?title=Issue%20on%20docs&body=Path:%20/amdl/quickstart/macos).
+>
+> For another guide to installing and running `apmyx-gui` on MacOS, with or without the `wrapper`, see https://gist.github.com/mattneub/cd1d7890a5cc26e7e8053f019cb9cd54
 
 ---
 
