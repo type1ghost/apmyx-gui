@@ -292,3 +292,85 @@ class QueueToggleBar(QFrame):
         rect = QRectF(-tw / 2, -fm.height() / 2, tw, fm.height())
         p.drawText(rect, Qt.AlignmentFlag.AlignCenter, text)
         p.restore()
+
+import webbrowser
+from PyQt6.QtWidgets import QLabel
+
+class BannerCloseButton(QPushButton):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setFixedSize(26, 26)
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.setStyleSheet("border: none; background: transparent; border-radius: 4px;")
+        self._is_hovering = False
+
+    def enterEvent(self, e):
+        self._is_hovering = True
+        self.update()
+        super().enterEvent(e)
+
+    def leaveEvent(self, e):
+        self._is_hovering = False
+        self.update()
+        super().leaveEvent(e)
+
+    def paintEvent(self, e):
+        p = QPainter(self)
+        p.setRenderHint(QPainter.RenderHint.Antialiasing)
+        
+        if self._is_hovering:
+            p.setBrush(QColor(255, 255, 255, 30))
+            p.setPen(Qt.PenStyle.NoPen)
+            p.drawRoundedRect(self.rect(), 4, 4)
+            
+        pen = QPen(QColor("#fd576b") if self._is_hovering else QColor(255, 255, 255, 200))
+        pen.setWidth(2)
+        pen.setCapStyle(Qt.PenCapStyle.RoundCap)
+        p.setPen(pen)
+        
+        m = 8 # margin
+        p.drawLine(m, m, self.width() - m, self.height() - m)
+        p.drawLine(self.width() - m, m, m, self.height() - m)
+
+
+class AnnouncementBanner(QWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setObjectName("AnnouncementBanner")
+        self.setFixedHeight(36)
+        
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(15, 0, 15, 0)
+        
+        self.message_label = QLabel()
+        self.message_label.setStyleSheet("color: white; font-weight: bold; font-size: 10pt;")
+        layout.addWidget(self.message_label, 1, Qt.AlignmentFlag.AlignCenter)
+        
+        self.close_btn = BannerCloseButton(self)
+        self.close_btn.clicked.connect(self.hide)
+        layout.addWidget(self.close_btn, 0, Qt.AlignmentFlag.AlignRight)
+        
+        self.url = ""
+        self.message_label.setCursor(Qt.CursorShape.PointingHandCursor)
+
+    def mousePressEvent(self, event):
+        if self.url and event.button() == Qt.MouseButton.LeftButton:
+            webbrowser.open(self.url)
+        super().mousePressEvent(event)
+
+    def set_message(self, message: str, url: str = "", msg_type: str = "info"):
+        if not message:
+            self.hide()
+            return
+            
+        self.message_label.setText(message)
+        self.url = url
+        
+        bg_color = "#3151a3" if msg_type == "info" else "#fd576b" if msg_type == "error" else "#1b1b1b"
+        self.setStyleSheet(f"""
+            QWidget#AnnouncementBanner {{
+                background-color: {bg_color};
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            }}
+        """)
+        self.show()

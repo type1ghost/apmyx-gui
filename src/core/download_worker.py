@@ -79,7 +79,6 @@ class DownloadJobRunner(QRunnable):
         ]
 
     def _is_decryptor_connection_failure(self, line: str) -> bool:
-        """Checks for specific, pause-able errors related to the decryptor/wrapper."""
         l = line.lower()
         return "127.0.0.1:10020" in l and "actively refused" in l
 
@@ -453,13 +452,11 @@ class DownloadWorker(QObject):
             self.current_process.terminate()
 
     def pause_queue(self):
-        """Stops the queue from processing new jobs."""
         if not self.queue_paused:
             logging.info("Download queue is being paused.")
             self.queue_paused = True
 
     def resume_queue(self):
-        """Allows the queue to continue processing jobs."""
         if self.queue_paused:
             logging.info("Download queue is being resumed.")
             self.queue_paused = False
@@ -467,7 +464,6 @@ class DownloadWorker(QObject):
 
     @pyqtSlot()
     def on_force_clear_all(self):
-        """Slot to be called from controller to force-clear everything."""
         queued_jobs = list(self.download_queue)
         self.download_queue.clear()
         for job in queued_jobs:
@@ -477,11 +473,6 @@ class DownloadWorker(QObject):
         self.queue_status_update.emit(len(self.download_queue))
 
     def cancel_job(self, job_id: int) -> bool:
-        """
-        Cancel a job by its ID. This handles running jobs, queued jobs, and jobs
-        that are still being fetched. Returns True if the job was found and an
-        action was taken.
-        """
         removed = False
 
         if self.is_busy and self.current_job_id == job_id:
@@ -508,7 +499,6 @@ class DownloadWorker(QObject):
         return removed
 
     def has_pending(self) -> bool:
-        """Returns True if there are jobs in the download queue."""
         return bool(self.download_queue)
 
     @pyqtSlot(int, dict, str, str)
@@ -524,7 +514,6 @@ class DownloadWorker(QObject):
         self._process_queue()
 
     def _get_latest_config(self):
-        """Reads config.yaml to get the most up-to-date settings."""
         try:
             with open('config.yaml', 'r', encoding='utf-8') as f:
                 return yaml.safe_load(f) or {}
@@ -626,7 +615,6 @@ class DownloadWorker(QObject):
 
     @pyqtSlot(int)
     def _handle_pause_request(self, job_id):
-        """Handles the runner's request to pause the entire queue."""
         if self.queue_paused:
             return
         
@@ -660,7 +648,6 @@ class DownloadWorker(QObject):
 
     @pyqtSlot()
     def cancel_all_jobs(self):
-        """Unified cancellation for all jobs, fetching and downloading."""
         logging.info("Unified cancel all jobs requested.")
         self.controller.cancel_all_fetches()
         self.on_force_clear_all()

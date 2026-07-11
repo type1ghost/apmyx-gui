@@ -143,7 +143,6 @@ class RestartDialog(QDialog):
         content.setContentsMargins(24, 18, 24, 18)
         content.setSpacing(12)
 
-        # Title
         title = QLabel("Restart Required")
         title.setObjectName("Title")
         tf = QFont(); tf.setPointSize(14); tf.setBold(True)
@@ -151,7 +150,6 @@ class RestartDialog(QDialog):
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         content.addWidget(title)
 
-        # Body
         body = QLabel(
             "Settings have been changed that require an application restart to take effect."
         )
@@ -220,7 +218,6 @@ class WrapperErrorDialog(QDialog):
         content.setContentsMargins(24, 18, 24, 18)
         content.setSpacing(12)
 
-        # Title
         title = QLabel("Can’t reach the wrapper")
         title.setObjectName("Title")
         tf = QFont(); tf.setPointSize(14); tf.setBold(True)
@@ -228,7 +225,6 @@ class WrapperErrorDialog(QDialog):
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         content.addWidget(title)
 
-        # Body
         body = QLabel("The wrapper isn’t responding on 127.0.0.1:10020.\nFollow these steps, then try again.")
         body.setObjectName("Body")
         bf = QFont(); bf.setPointSize(10)

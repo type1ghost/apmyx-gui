@@ -6,7 +6,6 @@ import weakref
 import logging
 
 class PlayerFeatures:
-    """Features for handling media player interactions."""
 
     @pyqtSlot()
     def on_player_bar_close_requested(self):

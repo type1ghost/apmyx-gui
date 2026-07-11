@@ -108,7 +108,6 @@ class StickyHeader(QFrame):
 
         self.chevron = ChevronIcon(self)
         
-        # Use ElidedLabel to prevent overflow
         self.title_label = ElidedLabel(title)
         self.title_label.setStyleSheet("font-weight: bold; color: #e0e0e0; border: none; background: transparent; font-size: 10pt;")
         
@@ -127,12 +126,11 @@ class StickyHeader(QFrame):
         self.progress_label.setStyleSheet("color: #aaa; font-size: 8pt; margin-left: 5px;")
         self.progress_label.hide()
 
-        # Fixed layout - title gets stretch, right elements stay fixed
         layout.addWidget(self.chevron)
-        layout.addWidget(self.title_label, 1)  # Only this expands
-        layout.addWidget(self.progress_label)  # Fixed
-        layout.addWidget(self.download_button)  # Fixed
-        layout.addWidget(self.status_tag)  # Fixed
+        layout.addWidget(self.title_label, 1)  
+        layout.addWidget(self.progress_label)  
+        layout.addWidget(self.download_button)  
+        layout.addWidget(self.status_tag)  
         
         self.setFixedHeight(42)
         self._is_expanded = False
@@ -334,7 +332,6 @@ class LyricsDownloaderPage(QWidget):
         root_layout.setContentsMargins(0, 0, 0, 0)
         root_layout.setSpacing(0)
         
-        # Hero section with left-aligned text
         hero = QFrame()
         hero.setObjectName("HeroFrame")
         hero_layout = QHBoxLayout(hero)
@@ -345,9 +342,9 @@ class LyricsDownloaderPage(QWidget):
         hero_layout.addWidget(self.menu_btn, 0, Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
         
         title_box = QVBoxLayout()
-        title_box.setAlignment(Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft)  # Left aligned
+        title_box.setAlignment(Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft)  
         
-        title_label = QLabel("Your Music, Now with Lyrics")  # Better title
+        title_label = QLabel("Your Music, Now with Lyrics")  
         title_label.setObjectName("SettingsTitle")
         subtitle_label = QLabel("Scan your music folder to find and download synced lyrics for all your tracks.")
         subtitle_label.setObjectName("SettingsSubtitle")
@@ -359,18 +356,16 @@ class LyricsDownloaderPage(QWidget):
             shadow.setOffset(0, 1)
             label.setGraphicsEffect(shadow)
             
-        title_box.addWidget(title_label, 0, Qt.AlignmentFlag.AlignLeft)  # Left aligned
-        title_box.addWidget(subtitle_label, 0, Qt.AlignmentFlag.AlignLeft)  # Left aligned
+        title_box.addWidget(title_label, 0, Qt.AlignmentFlag.AlignLeft)  
+        title_box.addWidget(subtitle_label, 0, Qt.AlignmentFlag.AlignLeft)  
         hero_layout.addLayout(title_box, 1)
         root_layout.addWidget(hero)
         
-        # Content frame
         content_frame = QFrame()
         content_frame.setStyleSheet("background-color: #1f1f1f;")
         content_layout = QVBoxLayout(content_frame)
         content_layout.setContentsMargins(20, 15, 20, 20)
         
-        # Controls
         controls_layout = QHBoxLayout()
         
         self.folder_button = QPushButton("Open Music Folder...")
@@ -416,7 +411,6 @@ class LyricsDownloaderPage(QWidget):
         controls_layout.addStretch(1)
         content_layout.addLayout(controls_layout)
         
-        # Progress bar
         self.global_progress_bar = QProgressBar()
         self.global_progress_bar.setFixedHeight(4)
         self.global_progress_bar.setTextVisible(False)
@@ -430,15 +424,12 @@ class LyricsDownloaderPage(QWidget):
         self.right_click_info_label.hide()
         content_layout.addWidget(self.right_click_info_label)
 
-        # Main stack
         self.main_stack = QStackedWidget()
         content_layout.addWidget(self.main_stack, 1)
         
-        # Placeholder
         self.placeholder_widget = self._create_placeholder_widget()
         self.main_stack.addWidget(self.placeholder_widget)
         
-        # Loading widget
         self.loading_widget = QWidget()
         loading_layout = QVBoxLayout(self.loading_widget)
         loading_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -459,7 +450,6 @@ class LyricsDownloaderPage(QWidget):
         loading_layout.addLayout(spinner_status_layout)
         self.main_stack.addWidget(self.loading_widget)
         
-        # Results scroll area
         self.scroll_area = QScrollArea()
         self.scroll_area.setWidgetResizable(True)
         self.scroll_area.setStyleSheet("border: none; background-color: transparent;")
@@ -477,7 +467,6 @@ class LyricsDownloaderPage(QWidget):
         root_layout.addWidget(content_frame, 1)
         self.main_stack.setCurrentWidget(self.placeholder_widget)
         
-        # File watcher
         self.file_watcher = QFileSystemWatcher(self)
         self.file_watcher.directoryChanged.connect(self._on_directory_changed)
         self._watcher_reset_timer = QTimer(self)
@@ -488,7 +477,6 @@ class LyricsDownloaderPage(QWidget):
         self._watcher_debounce_timer.setInterval(500)
         self._watcher_debounce_timer.timeout.connect(self._perform_rescan)
         
-        # Apply consistent styling with main window background
         self.setStyleSheet("""
             QWidget#LyricsDownloaderPage { 
                 background-color: #1f1f1f; 
@@ -664,7 +652,6 @@ class LyricsDownloaderPage(QWidget):
         info['is_expanded'] = is_expanding
         header.set_expanded(is_expanding)
 
-        # Smooth animation optimizations
         container.setUpdatesEnabled(False)
         
         if not hasattr(container, 'animation'):
@@ -673,7 +660,6 @@ class LyricsDownloaderPage(QWidget):
             container.animation.setEasingCurve(QEasingCurve.Type.OutQuart)
             container.animation.finished.connect(lambda: container.setUpdatesEnabled(True))
 
-        # Ensure accurate height calculation
         if is_expanding and not hasattr(info, 'calculated_height'):
             container.adjustSize()
             info['calculated_height'] = container.sizeHint().height()
@@ -723,7 +709,6 @@ class LyricsDownloaderPage(QWidget):
                 header.set_downloading_state(True)
                 self.download_progress[header] = {'processed': 0, 'total': len(missing_cards)}
                 
-                # Add to global queue instead of direct call
                 self._pending_cards.extend(missing_cards)
                 if not self.global_download_progress:
                     self.global_download_progress = {'processed': 0, 'total': 0}

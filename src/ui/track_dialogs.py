@@ -21,7 +21,6 @@ def _create_track_quality_widget(text: str, is_hires: bool = False, is_atmos: bo
     layout.setSpacing(6)
     layout.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
 
-    # 1. Lossless Icon
     icon_label = QLabel()
     icon_label.setFixedSize(24, 24)
     pixmap = QPixmap(24, 24)
@@ -58,7 +57,6 @@ def _create_track_quality_widget(text: str, is_hires: bool = False, is_atmos: bo
         text_widget.setStyleSheet("color: #cccccc; font-size: 9pt; font-weight: bold;")
     layout.addWidget(text_widget)
 
-    # 3. Atmos Icon
     if is_atmos:
         atmos_icon_label = QLabel()
         atmos_icon_path = resource_path('src/assets/atmos.svg')
@@ -469,7 +467,7 @@ class TrackSelectionDialog(QDialog):
         margins = self.main_layout.contentsMargins()
         total_height = header_height + tracks_height + 60 + margins.top() + margins.bottom()
         final_height = max(360, min(total_height, 700))
-        base_fixed = 36 + 180 + 30 + 56 + 48 + 20 # Adjusted for new container width
+        base_fixed = 36 + 180 + 30 + 56 + 48 + 20 
         max_title_width = 320
         if self.track_widgets:
             fm = QFontMetrics(QFont(self.font().family(), 10, QFont.Weight.Bold))

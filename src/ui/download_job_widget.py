@@ -9,7 +9,6 @@ from PyQt6.QtSvg import QSvgRenderer
 from .search_widgets import ImageFetcher
 
 class InfoButton(QPushButton):
-    """A custom-painted circular button with an SVG 'info' icon."""
     _SVG_DATA = '''<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>'''
 
     def __init__(self, parent=None):
@@ -34,7 +33,6 @@ class InfoButton(QPushButton):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
 
-        # Background circle
         if self.isDown():
             bg_color = QColor("#666")
         elif self._is_hovering:
@@ -46,16 +44,13 @@ class InfoButton(QPushButton):
         painter.setPen(Qt.PenStyle.NoPen)
         painter.drawEllipse(self.rect())
 
-        # Icon color
         icon_color = QColor("#bbb")
         if self._is_hovering:
             icon_color = QColor("#eee")
 
-        # Render SVG
         svg_data = self._SVG_DATA.replace('currentColor', icon_color.name()).encode('utf-8')
         self._renderer.load(svg_data)
         
-        # Adjust rect for padding
         target_rect = self.rect().adjusted(2, 2, -2, -2)
         self._renderer.render(painter, QRectF(target_rect))
 
@@ -63,7 +58,7 @@ class ElidedLabel(QLabel):
     def __init__(self, text="", parent=None):
         super().__init__(parent)
         self._text = text
-        self.setWordWrap(True)  # Enable wrapping for multi-line if needed
+        self.setWordWrap(True)  
         self.updateText()
 
     def setText(self, text):
@@ -142,7 +137,7 @@ class DownloadJobWidget(QWidget):
         self._log = []
         self._has_error = False
         self._first_progress_seen = False
-        self._state = "queued" # "queued", "paused", "running", "finished"
+        self._state = "queued" 
         
       
         self.job_progress_bar = QProgressBar()
@@ -242,8 +237,8 @@ class DownloadJobWidget(QWidget):
         self.status_label.setText("Paused · waiting for wrapper")
         self.status_label.setStyleSheet("font-size: 8pt; color: #ffcc33;")
         self.stream_label.setText("")
-        self.job_progress_bar.setStyleSheet(PROGRESS_BAR_STYLESHEET.replace("#ff546a", "#ffcc33")) # yellow
-        self.job_progress_bar.setValue(1000) # Fill the bar
+        self.job_progress_bar.setStyleSheet(PROGRESS_BAR_STYLESHEET.replace("#ff546a", "#ffcc33")) 
+        self.job_progress_bar.setValue(1000) 
         self.job_progress_bar.setVisible(True)
 
     def set_in_progress_ui(self, label="Downloading..."):
@@ -251,8 +246,8 @@ class DownloadJobWidget(QWidget):
             return 
         self._state = "running"
         self.status_label.setText(label)
-        self.status_label.setStyleSheet("font-size: 8pt;") # Reset color
-        self.job_progress_bar.setStyleSheet(PROGRESS_BAR_STYLESHEET) # Back to default pink
+        self.status_label.setStyleSheet("font-size: 8pt;") 
+        self.job_progress_bar.setStyleSheet(PROGRESS_BAR_STYLESHEET) 
         self.job_progress_bar.setValue(0)
         self.job_progress_bar.setVisible(True)
 
@@ -265,9 +260,7 @@ class DownloadJobWidget(QWidget):
         self.job_progress_bar.setValue(value)
 
     def set_fetching(self):
-        """Set the widget to show fetching state."""
         self.status_label.setText("Fetching playlist details...")
-        # Keep determinate progress bar but start at 0
         self.job_progress_bar.setRange(0, 1000)
         self.job_progress_bar.setValue(0)
         self.cancel_button.setVisible(True)
@@ -282,9 +275,7 @@ class DownloadJobWidget(QWidget):
         
         album_attrs = item_data.get('albumData', {}).get('attributes', {})
 
-        # Check for the marker to determine if this is a single song from a larger collection
         if item_data.get('_is_single_song', False):
-            # This is a single track selected from a larger album.
             track_data = tracks[0].get('trackData', {})
             track_attrs = track_data.get('attributes', {})
             
@@ -293,7 +284,6 @@ class DownloadJobWidget(QWidget):
             artwork_url = track_attrs.get('artwork', {}).get('url', '').replace('{w}', '128').replace('{h}', '128')
             self.track_count_label.setText("1 track")
         else:
-            # This is a full album, EP, or a single-track release.
             title = album_attrs.get('name', 'Unknown Album')
             artist = album_attrs.get('artistName', 'Unknown Artist')
             artwork_url = album_attrs.get('artwork', {}).get('url', '').replace('{w}', '128').replace('{h}', '128')
@@ -382,10 +372,9 @@ class DownloadJobWidget(QWidget):
             return
 
        
-        if delta <= 6:  # ~0.6% on 0–100 scale
+        if delta <= 6:  
             self.job_progress_bar.setValue(new_target)
         else:
-            # Clamp animation so it never lags behind
             duration = max(80, min(200, int(delta * 2)))
             self._progress_animation.setStartValue(current)
             self._progress_animation.setEndValue(new_target)
@@ -397,21 +386,16 @@ class DownloadJobWidget(QWidget):
             self.cancel_button.setVisible(True)
 
     def set_stream_label(self, text: str):
-        """Set stream label with UTF-8 encoding fix"""
-        # Fix UTF-8 double-encoding issues
         fixed_text = text
         if 'â€' in text and len(text) > 2:
             try:
-                # Try to decode double-encoded UTF-8
                 fixed_text = text.encode('latin-1').decode('utf-8')
             except (UnicodeDecodeError, UnicodeEncodeError):
-                # Fallback: replace known corruption patterns
                 fixed_text = (text
-                             .replace('â€"', '—')     # em dash
-                             .replace('â€œ', '"')     # left quote
-                             .replace('â€', '"'))    # right quote
+                             .replace('â€"', '—')     
+                             .replace('â€œ', '"')     
+                             .replace('â€', '"'))    
         
-        # Simple, clean display - just stream info
         self.stream_label.setText(f"Stream: {fixed_text}")
 
     def add_skipped_track(self, track_name):
@@ -432,17 +416,14 @@ class DownloadJobWidget(QWidget):
         self.status_label.setText(message)
         self.skipped_tracks = skipped_tracks
         
-        # Stop animation
         if self._progress_animation.state() == QPropertyAnimation.State.Running:
             self._progress_animation.stop()
         
-        # Reset progress bar to determinate mode if it was indeterminate
         if self.job_progress_bar.maximum() == 0:
             self.job_progress_bar.setRange(0, 1000)
         
         target_value = 1000
         
-        # Animate to 100%
         final_anim = QPropertyAnimation(self, b"progressValue", self)
         final_anim.setDuration(150)
         final_anim.setStartValue(self.job_progress_bar.value())
@@ -451,23 +432,23 @@ class DownloadJobWidget(QWidget):
         
         def set_final_stylesheet():
             if "cancel" in message.lower():
-                self.job_progress_bar.setStyleSheet(PROGRESS_BAR_STYLESHEET.replace("#ff546a", "#d32f2f"))  # Red
+                self.job_progress_bar.setStyleSheet(PROGRESS_BAR_STYLESHEET.replace("#ff546a", "#d32f2f"))  
             elif not success:
                 if message:
                     self.append_error_log(message)
-                self.job_progress_bar.setStyleSheet(PROGRESS_BAR_STYLESHEET.replace("#ff546a", "#d32f2f"))  # Red
+                self.job_progress_bar.setStyleSheet(PROGRESS_BAR_STYLESHEET.replace("#ff546a", "#d32f2f"))  
             elif skipped_tracks:
-                self.job_progress_bar.setStyleSheet(PROGRESS_BAR_STYLESHEET.replace("#ff546a", "#ff9800"))  # Orange
+                self.job_progress_bar.setStyleSheet(PROGRESS_BAR_STYLESHEET.replace("#ff546a", "#ff9800"))  
                 self.info_button.setVisible(True)
             else:
-                self.job_progress_bar.setStyleSheet(PROGRESS_BAR_STYLESHEET.replace("#ff546a", "#4caf50"))  # Green
+                self.job_progress_bar.setStyleSheet(PROGRESS_BAR_STYLESHEET.replace("#ff546a", "#4caf50"))  
             
-            self.job_progress_bar.setValue(target_value)  # Ensure it's at 1000
+            self.job_progress_bar.setValue(target_value)  
             self.job_progress_bar.repaint()
         
         final_anim.finished.connect(set_final_stylesheet)
         final_anim.start()
-        self._final_anim = final_anim  # keep reference
+        self._final_anim = final_anim  
 
     def show_details(self):
         if self._has_error:
@@ -495,7 +476,6 @@ class DownloadJobWidget(QWidget):
             dialog.exec()
 
     def handle_progress_message(self, progress_data):
-        """Handle progress updates from Go backend."""
         msg_type = progress_data.get("type")
 
         if msg_type == "track_progress":
@@ -503,14 +483,12 @@ class DownloadJobWidget(QWidget):
             total_tracks = progress_data.get("total_tracks", 1)
             percent = progress_data.get("percent", 0)
 
-            # Visual feedback for remuxing phase (90-100%)
             if percent >= 90:
                 status_text = f"Finalizing video ({track_num}/{total_tracks})"
                 self.set_stream_label("Combining video & audio streams")
             else:
                 status_text = f"Downloading ({track_num}/{total_tracks})"
 
-            # Update progress bar
             self.update_progress(status_text, percent, percent)
 
     @pyqtSlot()
@@ -522,6 +500,5 @@ class DownloadJobWidget(QWidget):
         self.confirmation_requested.emit(self.job_id, item_name)
 
     def closeEvent(self, event):
-        """Clean up timer when widget is closed"""
         self._progress_animation.stop()
         super().closeEvent(event)

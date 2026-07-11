@@ -365,18 +365,10 @@ An incorrect or unsupported language code will be ignored. For more information 
             'info_title': "Media User Token Guide", 
             'info_body': """
                 <div style="text-align: left; line-height: 1.5;">
-                <b>For Chrome:</b><br>
-                1. Install the <a href="https://chromewebstore.google.com/detail/get-cookiestxt-locally/cclelndahbckbenkjhflpdbgdldlbecc?pli=1" style="color: #fd576b; text-decoration: none;">Get cookies.txt LOCALLY</a> extension.<br>
-                2. Open the Apple Music website and log in to your account.<br>
-                3. Click the extension icon and then the export button to save the cookies.txt file.<br>
-                4. Open the file, find the line for "media-user-token", and copy the long value.<br>
-                5. Paste the value into this field.<br><br>
-                <b>For Firefox:</b><br>
-                1. Install the <a href="https://addons.mozilla.org/en-US/firefox/addon/export-cookies-txt/" style="color: #fd576b; text-decoration: none;">Export Cookies</a> extension.<br>
-                2. Open the Apple Music website and log in to your account.<br>
-                3. Click the extension icon and choose to export cookies for music.apple.com.<br>
-                4. Open the saved file, find the line for "media-user-token", and copy the long value.<br>
-                5. Paste the value into this field.
+                1. <b>Open</b> music.apple.com and log in.<br>
+                2. <b>Open DevTools</b> (Ctrl+Shift+I / Cmd+Option+I).<br>
+                3. <b>Go to</b> Application -> Storage -> Cookies -> https://music.apple.com.<br>
+                4. <b>Find</b> <code>media-user-token</code> and copy its value.
                 </div>
             """
         },

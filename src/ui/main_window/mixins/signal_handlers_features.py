@@ -17,7 +17,6 @@ from ...info_dialog import InfoDialog
 from ...video_preview_dialog import VideoPreviewDialog
 
 class SignalHandlersFeatures:
-    """Features for handling signals from controller, workers, and UI components."""
 
     def setup_worker_connections(self):
         self.controller.search_results_loaded.connect(self.display_search_results)
@@ -90,7 +89,6 @@ class SignalHandlersFeatures:
         self._last_wrapper_popup_ts = 0
 
     def _cleanup_legacy_pause_file(self):
-        """On startup, removes the old persistence file if it exists from previous versions."""
         try:
             if getattr(sys, 'frozen', False):
                 app_dir = os.path.dirname(sys.executable)
@@ -109,14 +107,12 @@ class SignalHandlersFeatures:
             logging.warning(f"Could not clean up legacy pause file: {e}")
 
     def _paused_remove_by_id(self, job_id: int) -> bool:
-        """Removes a job from the in-memory paused list by its ID."""
         initial_len = len(self._paused_jobs)
         self._paused_jobs = [job for job in self._paused_jobs if job.get('job_id') != job_id]
         return len(self._paused_jobs) < initial_len
 
     @pyqtSlot(int)
     def _on_cancel_job(self, job_id: int):
-        """Handles cancellation for any job, whether paused, queued, or running."""
  
         self._paused_remove_by_id(job_id)
 
@@ -137,7 +133,6 @@ class SignalHandlersFeatures:
 
     @pyqtSlot(list)
     def _on_queue_pause_triggered(self, paused_jobs: list):
-        """Handles the signal from the worker that the queue has been paused."""
         if self.queue_is_paused:
             return
         
@@ -162,14 +157,12 @@ class SignalHandlersFeatures:
 
     @pyqtSlot(int)
     def _on_job_started(self, job_id: int):
-        """Fired when a job is taken from the queue to be processed."""
         widget = self.queue_panel.get_job_widget(job_id)
         if widget:
             widget.set_in_progress_ui("Starting...")
 
     @pyqtSlot()
     def _on_manual_resume(self):
-        """Handles the 'Resume' button click on the pause banner."""
         if not self._paused_jobs:
             self._clear_paused_state()  
             return
@@ -192,7 +185,6 @@ class SignalHandlersFeatures:
 
     @pyqtSlot()
     def _on_clear_paused(self):
-        """Handles the 'Clear Paused' button click."""
         logging.info("User clearing paused queue.")
         
 
@@ -205,7 +197,6 @@ class SignalHandlersFeatures:
         self.statusBar().showMessage("Paused queue cleared.", 3000)
 
     def _clear_paused_state(self):
-        """Resets the in-memory pause state and updates the UI."""
         self._paused_jobs = []
         self.queue_is_paused = False
         self.queue_panel.hide_pause_banner()
@@ -218,10 +209,24 @@ class SignalHandlersFeatures:
         self.statusBar().showMessage(f"Preferred quality: {text}", 1500)
         is_aac = "aac" in text.lower()
         self.aac_quality_selector.setVisible(is_aac)
+        
+        try:
+            with open('config.yaml', 'r') as f:
+                config = yaml.safe_load(f) or {}
+        except FileNotFoundError:
+            config = {}
+
         if hasattr(self, 'quality_info_badge'):
-       
-            new_text = "Token Required. Click here to set it up if not already configured." if is_aac else "Make sure wrapper is running."
-            tooltip = "Apple Music web token required for AAC downloads" if is_aac else "Wrapper (decryptor) required for ALAC and Dolby Atmos downloads"
+            if is_aac:
+                if config.get('media-user-token'):
+                    new_text = "Token Filled"
+                    tooltip = "Apple Music web token is configured."
+                else:
+                    new_text = "Token Required. Click here to set it up if not already configured."
+                    tooltip = "Apple Music web token required for AAC downloads"
+            else:
+                new_text = "Make sure wrapper is running."
+                tooltip = "Wrapper (decryptor) required for ALAC and Dolby Atmos downloads"
             
  
             self.quality_info_badge.setText(new_text)
@@ -237,12 +242,6 @@ class SignalHandlersFeatures:
             
            
             self.quality_info_badge.updateGeometry()
-
-        try:
-            with open('config.yaml', 'r') as f:
-                config = yaml.safe_load(f) or {}
-        except FileNotFoundError:
-            config = {}
         
         if config.get('preferred-quality') != text:
             config['preferred-quality'] = text
@@ -490,7 +489,6 @@ class SignalHandlersFeatures:
 
     @pyqtSlot(dict)
     def on_copy_link_requested(self, item_data: dict):
-        """Copy Apple Music link to clipboard."""
         link = item_data.get('appleMusicUrl', '')
         if not link:
             self.statusBar().showMessage("No link available", 2000)
@@ -502,7 +500,6 @@ class SignalHandlersFeatures:
 
     @pyqtSlot(dict)
     def on_lyrics_download_requested(self, item_data: dict):
-        """Request lyrics download for an item."""
         item_id = item_data.get('id', '')
         item_name = item_data.get('name', 'Unknown')
         
@@ -513,7 +510,6 @@ class SignalHandlersFeatures:
 
     @pyqtSlot(dict)
     def on_artwork_download_requested(self, item_data: dict):
-        """Request artwork download for an item."""
         item_id = item_data.get('id', '')
         item_name = item_data.get('name', 'Unknown')
         
@@ -523,7 +519,6 @@ class SignalHandlersFeatures:
         self.controller.download_artwork(item_data)
 
     def _show_download_spinner(self, item_id: str):
-        """Show loading spinner on cards for this item"""
         for url, card_set in self.card_widgets.items():
             for card_ref in list(card_set):
                 if card_ref and not sip.isdeleted(card_ref):
@@ -532,7 +527,6 @@ class SignalHandlersFeatures:
                             card_ref.download_button.setState(card_ref.download_button.State.Loading)
 
     def _hide_download_spinner(self, item_id: str):
-        """Hide loading spinner on cards for this item"""
         for url, card_set in self.card_widgets.items():
             for card_ref in list(card_set):
                 if card_ref and not sip.isdeleted(card_ref):
@@ -542,7 +536,6 @@ class SignalHandlersFeatures:
 
     @pyqtSlot(str, bool, str)
     def on_lyrics_content_ready_for_save(self, item_id: str, success: bool, data_or_error: str):
-        """Handle lyrics download completion for search cards, which require a save dialog."""
         self._hide_download_spinner(item_id)
         
         if not success:
@@ -632,7 +625,6 @@ class SignalHandlersFeatures:
                 self.statusBar().showMessage(f"Failed to save artwork: {e}", 5000)
 
     def _get_item_data_by_id(self, item_id: str):
-        """Find item data from card_widgets by ID"""
         for url, card_set in self.card_widgets.items():
             for card_ref in list(card_set):
                 if card_ref and not sip.isdeleted(card_ref):
@@ -641,10 +633,6 @@ class SignalHandlersFeatures:
         return None
 
     def _format_filename_for_item(self, item_data: dict, config: dict) -> str:
-        """
-        Format filename using song-file-format from config.
-        Same logic as backend uses for actual downloads.
-        """
         format_pattern = config.get("song-file-format", "{SongNumber}. {SongName}")
         
         song_name = item_data.get('name', 'Unknown')
@@ -669,7 +657,6 @@ class SignalHandlersFeatures:
         return filename
 
     def _sanitize_filename(self, filename: str) -> str:
-        """Remove invalid characters from filename"""
         invalid_chars = '<>:"/\\|?*'
         for char in invalid_chars:
             filename = filename.replace(char, '')
@@ -839,7 +826,6 @@ class SignalHandlersFeatures:
 
     @pyqtSlot(int, str)
     def _maybe_show_decryptor_popup(self, job_id: int, line: str):
-        """Show a single app-modal wrapper error dialog, centered on the main window."""
         import time as _time
         lower = (line or "").lower()
 
@@ -881,7 +867,6 @@ class SignalHandlersFeatures:
         
     @pyqtSlot(str)
     def on_search_failed(self, error_message):
-        """Handles failures during a text-based search."""
         logging.error(f"Search failed: {error_message}")
         self._hide_link_spinner()
         

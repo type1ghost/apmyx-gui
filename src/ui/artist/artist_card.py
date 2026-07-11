@@ -36,7 +36,6 @@ class HoverMask(QLabel):
         painter.end()
 
 class SelectionOverlay(QWidget):
-    """A dedicated widget to draw the selection UI on top of the artwork."""
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
@@ -47,13 +46,11 @@ class SelectionOverlay(QWidget):
         
         art_rect = self.rect()
 
-        # Draw selection ring
         ring_pen = QPen(QColor("#fd576b"), 2)
         painter.setPen(ring_pen)
         painter.setBrush(Qt.BrushStyle.NoBrush)
         painter.drawRoundedRect(art_rect.adjusted(1, 1, -1, -1), 12, 12)
 
-        # Draw checkmark
         check_bg_rect = QRect(art_rect.right() - 22, art_rect.y() + 6, 16, 16)
         painter.setPen(Qt.PenStyle.NoPen)
         painter.setBrush(QColor("#fd576b"))
@@ -68,7 +65,6 @@ class SelectionOverlay(QWidget):
         painter.end()
 
 class ArtistAlbumCard(QWidget):
-    """A card widget for the artist page, mimicking SearchResultCard."""
     download_requested = pyqtSignal(object)
     tracklist_requested = pyqtSignal(object)
     info_requested = pyqtSignal(object)
@@ -140,7 +136,6 @@ class ArtistAlbumCard(QWidget):
         self.selection_overlay.setGeometry(0, 0, 180, 180)
         self.selection_overlay.hide()
 
-        # --- Buttons ---
         self.download_button = DownloadIconButton(self.artwork_container)
         self.tracklist_button = TracklistButton(self.artwork_container)
         self.info_button = InfoIconButton(self.artwork_container)

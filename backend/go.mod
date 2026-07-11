@@ -2,6 +2,8 @@ module main
 
 go 1.23.1
 
+replace github.com/zhaarey/go-mp4tag => ./go-mp4tag
+
 require (
 	github.com/aead/cmac v0.0.0-20160719120800-7af84192f0b1
 	github.com/grafov/m3u8 v0.11.1

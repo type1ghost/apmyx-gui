@@ -74,7 +74,6 @@ class DiscographyDelegate(QStyledItemDelegate):
         self._pm_cache = {}
         self.btn_size = 26
         
-        # --- Pre-render all button states to pixmaps for performance ---
         self.tracklist_icon_pixmap = None
         try:
             tl_path = resource_path('src/assets/tracklist.svg')
@@ -90,7 +89,6 @@ class DiscographyDelegate(QStyledItemDelegate):
             'tl_hover': self._create_button_pixmap(QColor("#f5596d"), 'tracklist'),
         }
 
-        # --- Font definitions ---
         base_font = QApplication.font()
         base_pt = base_font.pointSize() or 9
         self.title_font = QFont(base_font)
@@ -116,7 +114,6 @@ class DiscographyDelegate(QStyledItemDelegate):
         return rounded
 
     def _create_button_pixmap(self, bg_color: QColor, icon_type: str) -> QPixmap:
-        """Helper to pre-render a complete button state into a pixmap."""
         pixmap = QPixmap(self.btn_size, self.btn_size)
         pixmap.fill(Qt.GlobalColor.transparent)
         painter = QPainter(pixmap)
@@ -145,7 +142,6 @@ class DiscographyDelegate(QStyledItemDelegate):
         return download_rect, tracklist_rect
 
     def _paint_download_icon(self, painter: QPainter, rect: QRect):
-        """Reuses the painting logic from search_cards.DownloadIconButton."""
         pen = QPen(Qt.GlobalColor.white)
         pen.setWidth(2)
         pen.setCapStyle(Qt.PenCapStyle.RoundCap)
@@ -172,7 +168,6 @@ class DiscographyDelegate(QStyledItemDelegate):
         if isinstance(parent_view, DiscographyListView):
             is_hovered = (parent_view.hover_index() == index)
 
-        # --- Background and Artwork ---
         if is_checked:
             painter.fillRect(option.rect, QColor("#B03400"))
         elif is_hovered:
@@ -202,7 +197,6 @@ class DiscographyDelegate(QStyledItemDelegate):
             painter.setPen(Qt.PenStyle.NoPen)
             painter.drawRoundedRect(artwork_rect, 4, 4)
             
-        # --- Text ---
         text_color = QColor("white") if is_checked else QColor("#e0e0e0")
         details_color = QColor("white") if is_checked else QColor("#bbb")
         
@@ -253,7 +247,6 @@ class DiscographyDelegate(QStyledItemDelegate):
         painter.setFont(self.details_font)
         painter.drawText(title_x, details_y, fm_details.elidedText(details_text, Qt.TextElideMode.ElideRight, text_width))
         
-        # --- Draw pre-rendered buttons ---
         mouse_pos = parent_view.hover_pos() if hasattr(parent_view, "hover_pos") else QPoint(-1, -1)
 
         if is_hovered:
@@ -264,7 +257,6 @@ class DiscographyDelegate(QStyledItemDelegate):
                 tl_pixmap = self.button_states['tl_hover'] if tl_rect.contains(mouse_pos) else self.button_states['tl_normal']
                 painter.drawPixmap(tl_rect.topLeft(), tl_pixmap)
             else:
-                # For music videos, show only a download button overlay
                 dl_pixmap = self.button_states['dl_hover'] if dl_rect.contains(mouse_pos) else self.button_states['dl_normal']
                 painter.drawPixmap(dl_rect.topLeft(), dl_pixmap)
 
@@ -287,7 +279,6 @@ class DiscographyDelegate(QStyledItemDelegate):
                     self.parent().tracklist_button_clicked.emit(index)
                     return True
             else:
-                # Music videos: allow direct download click, no tracklist
                 if hasattr(self.parent(), "download_button_clicked") and dl_rect.contains(event.pos()):
                     self.parent().download_button_clicked.emit(index)
                     return True
@@ -306,7 +297,6 @@ class DiscographyGridDelegate(QStyledItemDelegate):
         self._pm_cache = {}
         self.btn_size = 26
         
-        # --- Pre-render all button states to pixmaps for performance ---
         self.tracklist_icon_pixmap = None
         try:
             tl_path = resource_path('src/assets/tracklist.svg')
@@ -324,7 +314,6 @@ class DiscographyGridDelegate(QStyledItemDelegate):
             'info_hover': self._create_button_pixmap(QColor("#f5596d"), 'info'),
         }
         
-        # --- Font definitions ---
         base_font = QApplication.font()
         base_pt = base_font.pointSize() or 9
         self.title_font = QFont(base_font)
@@ -337,7 +326,6 @@ class DiscographyGridDelegate(QStyledItemDelegate):
         self.overlay_font.setFamilies(["Inter Tight", "Inter", self.overlay_font.family()])
         self.overlay_font.setWeight(QFont.Weight.Bold)
 
-        # --- Sizing ---
         self.art_size = QSize(180, 180)
         self.tile_size = QSize(190, 250)
         self.radius = 12
@@ -627,7 +615,6 @@ class DiscographyGridDelegate(QStyledItemDelegate):
                     parent_view.tracklist_button_clicked.emit(index)
                     return True
             else:
-                # Music videos: allow only download click
                 parent_view = self.parent()
                 if hasattr(parent_view, "download_button_clicked") and dl_rect.contains(event.pos()):
                     parent_view.download_button_clicked.emit(index)

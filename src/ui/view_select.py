@@ -20,7 +20,6 @@ BORDER_COLOR = QColor("#444")
 CHECKBOX_BORDER_COLOR = QColor("#888")
 
 class SelectionModel(QAbstractListModel):
-    """A model to hold the list of selected items, now with check state."""
     def __init__(self, items: Optional[List[Dict[str, Any]]] = None, parent: Optional[QWidget] = None):
         super().__init__(parent)
         self._items = items or []
@@ -48,7 +47,6 @@ class SelectionModel(QAbstractListModel):
         return True
 
     def update_items(self, items: List[Dict[str, Any]]):
-        """Resets the model with a new list of items."""
         self.beginResetModel()
         for item in items:
             item["checkState"] = Qt.CheckState.Unchecked
@@ -304,7 +302,6 @@ class SelectionDropdown(QFrame):
             self.clear_selected_requested.emit(urls_to_clear)
 
     def show_under(self, anchor_widget: QWidget, margin: int = 10):
-        """Shows the dropdown positioned optimally relative to the anchor."""
         self._recalculate_height() 
         screen = self.screen() or QApplication.primaryScreen()
         avail_geom = screen.availableGeometry()

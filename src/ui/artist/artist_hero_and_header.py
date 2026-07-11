@@ -178,14 +178,12 @@ class ArtistHeroWidget(QWidget):
         
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         
-        # Widget structure
         self.background_label = QLabel(self)
         self.background_label.setScaledContents(False)
         self.overlay = QWidget(self)
         self.content_container = QWidget(self)
         self.content_container.setStyleSheet("background: transparent;")
         
-        # Layouts
         main_layout = QHBoxLayout(self.content_container)
         main_layout.setContentsMargins(30, 40, 30, 20)
         main_layout.setSpacing(30)

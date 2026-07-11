@@ -2,7 +2,6 @@ from PyQt6 import sip
 from PyQt6.QtCore import pyqtSlot
 
 class SelectionFeatures:
-    """Features for managing selection of items for batch download."""
 
     def show_selection_dropdown(self):
         if self.selection_dropdown.isVisible():

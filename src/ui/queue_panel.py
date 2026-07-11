@@ -25,7 +25,6 @@ class ConfirmCancelDialog(QDialog):
             }
         """)
         
-        # Layouts
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.addWidget(self.bg_widget)
@@ -34,7 +33,6 @@ class ConfirmCancelDialog(QDialog):
         content_layout.setContentsMargins(25, 20, 25, 20)
         content_layout.setSpacing(8)
 
-        # Title
         title_label = QLabel(title)
         title_font = QFont()
         title_font.setPointSize(14)
@@ -44,7 +42,6 @@ class ConfirmCancelDialog(QDialog):
         title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         content_layout.addWidget(title_label)
 
-        # Message
         message_label = QLabel(message)
         message_font = QFont()
         message_font.setPointSize(10)
@@ -56,7 +53,6 @@ class ConfirmCancelDialog(QDialog):
         
         content_layout.addSpacing(15)
 
-        # Buttons (now in a QVBoxLayout)
         button_layout = QVBoxLayout()
         button_layout.setSpacing(10)
         
@@ -65,7 +61,7 @@ class ConfirmCancelDialog(QDialog):
 
         for button in [self.yes_button, self.no_button]:
             button.setCursor(Qt.CursorShape.PointingHandCursor)
-            button.setFixedHeight(38) # Thinner buttons
+            button.setFixedHeight(38) 
             font = button.font()
             font.setPointSize(11)
             font.setBold(True)
@@ -127,7 +123,6 @@ class CancelAllButton(QPushButton):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
 
-        # Background
         if self.isDown():
             bg_color = QColor("#d32f2f")
         elif self._is_hovering:
@@ -139,7 +134,6 @@ class CancelAllButton(QPushButton):
         painter.setPen(Qt.PenStyle.NoPen)
         painter.drawEllipse(self.rect())
 
-        # 'X' Icon
         pen = QPen(QColor("#e0e0e0"), 2)
         pen.setCapStyle(Qt.PenCapStyle.RoundCap)
         painter.setPen(pen)
@@ -292,7 +286,6 @@ class QueuePanel(QFrame):
         self.main_layout.addWidget(scroll_area)
 
     def get_job_widget(self, job_id: int):
-        """Returns the job widget corresponding to the given job ID."""
         return self.jobs.get(job_id)
 
     def show_pause_banner(self, paused_count: int):
@@ -303,7 +296,6 @@ class QueuePanel(QFrame):
         self.cancel_all_button.hide() 
 
     def hide_pause_banner(self):
-        """Hides the pause banner."""
         self.pause_banner.hide()
         self._update_button_states() 
 
@@ -320,7 +312,6 @@ class QueuePanel(QFrame):
             self.main_window
         )
         
-        # Center the dialog on the main window
         mw_rect = self.main_window.geometry()
         dialog.move(mw_rect.center() - dialog.rect().center())
         
@@ -348,7 +339,6 @@ class QueuePanel(QFrame):
                 job_widget.cancel_button.setEnabled(True)
 
     def _on_clear_finished_clicked(self):
-        # Iterate over a copy of items to allow modification during loop
         for job_id, widget in list(self.jobs.items()):
             if widget.is_finished:
                 self.remove_job(job_id)
@@ -358,14 +348,12 @@ class QueuePanel(QFrame):
         has_unfinished_job = any(not w.is_finished for w in self.jobs.values())
 
         self.clear_finished_button.setVisible(has_finished_job)
-        # Hide cancel all if the pause banner is visible
         self.cancel_all_button.setVisible(has_unfinished_job and self.pause_banner.isHidden())
 
     def add_job(self, job_id, item_data, quality_label):
         self.placeholder_label.hide()
         job_widget = DownloadJobWidget(job_id, item_data, self.main_window, quality_label, self)
         
-        # Ensure progress bar is determinate from the start
         if job_widget.job_progress_bar.maximum() == 0:
             job_widget.job_progress_bar.setRange(0, 1000)
 
@@ -402,7 +390,6 @@ class QueuePanel(QFrame):
 
     @pyqtSlot(int)
     def cancel_job(self, job_id):
-        """Handles UI update for a job cancelled from the queue before starting."""
         if job_id in self.jobs:
             job_widget = self.jobs[job_id]
             job_widget.set_finished("Cancelled from queue.", False, [])
@@ -410,12 +397,10 @@ class QueuePanel(QFrame):
             self._update_button_states()
 
     def _schedule_widget_removal(self, widget, job_id):
-        """Schedules a widget to be removed after a delay."""
         widget.setEnabled(False)
         QTimer.singleShot(5000, lambda: self.remove_job(job_id))
 
     def remove_job(self, job_id: int):
-        """Removes the widget for the given job_id immediately."""
         widget = self.jobs.get(job_id)
         if widget:
             if job_id in self.jobs:

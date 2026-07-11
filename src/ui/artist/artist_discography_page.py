@@ -460,11 +460,9 @@ class ArtistDiscographyPage(QWidget):
             if item and item.widget():
                 widgets.append(item.widget())
 
-        # Temporarily remove widgets from layout without deleting them
         for w in widgets:
             layout.removeWidget(w)
 
-        # Re-add widgets with the new column count
         for i, widget in enumerate(widgets):
             layout.addWidget(widget, i // cols, i % cols)
 

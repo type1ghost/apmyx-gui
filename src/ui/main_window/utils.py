@@ -41,7 +41,7 @@ def create_view_icon(mode='grid', size=24, color=QColor("#e0e0e0")):
         painter.drawRect(int(margin + s + gap), int(margin), int(s), int(s))
         painter.drawRect(int(margin), int(margin + s + gap), int(s), int(s))
         painter.drawRect(int(margin + s + gap), int(margin + s + gap), int(s), int(s))
-    else: # list
+    else: 
         s = size / 5.0
         margin = s
         gap = (size - 2*margin - 3*2) / 2 

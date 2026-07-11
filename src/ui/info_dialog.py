@@ -281,7 +281,6 @@ def _create_quality_widget(text: str, is_hires: bool = False) -> QWidget:
             new_icon_width = 21
             new_icon_height = int(new_icon_width * (9.0 / 14.0))
             
-            # Always tint with gray color
             icon_color = QColor("#ccc")
             rendered_pixmap = render_svg_tinted(svg_bytes, QSize(new_icon_width, new_icon_height), icon_color)
             

@@ -1,6 +1,7 @@
 import weakref
 import logging
 import webbrowser
+import yaml
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout,
     QPushButton, QScrollArea,
@@ -10,8 +11,32 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import Qt, QTimer, QSize
 from PyQt6.QtGui import QColor, QPainter, QPixmap, QIcon, QPen
 from PyQt6.QtSvg import QSvgRenderer
-from ..controls import SegmentedQualitySelector, AACQualitySelector, QueueToggleBar
+from ..controls import SegmentedQualitySelector, AACQualitySelector, QueueToggleBar, AnnouncementBanner
 from ..utils import create_view_icon, render_svg_icon, resource_path
+import requests
+from PyQt6.QtCore import pyqtSignal, QObject, QRunnable, QThreadPool
+
+class BroadcastSignals(QObject):
+    finished = pyqtSignal(dict)
+
+class BroadcastFetchTask(QRunnable):
+    def __init__(self, url):
+        super().__init__()
+        self.url = url
+        self.signals = BroadcastSignals()
+        
+    def run(self):
+        import time
+        try:
+            
+            bypass_cache_url = f"{self.url}?t={int(time.time())}"
+            resp = requests.get(bypass_cache_url, timeout=5)
+            if resp.status_code == 200:
+                self.signals.finished.emit(resp.json())
+            else:
+                self.signals.finished.emit({})
+        except Exception:
+            self.signals.finished.emit({})
 from ...search_widgets import SearchLineEdit, ClickableLabel
 from ...search_cards import SettingsButton
 from ...settings_page import SettingsPage
@@ -59,6 +84,13 @@ class UiSetupFeatures:
             wrapper_url = "https://github.com/rwnk-12/apmyx-gui?tab=readme-ov-file#wrapper-installation-windows"
             webbrowser.open(wrapper_url)
 
+    def _on_broadcast_fetched(self, data: dict):
+        msg = data.get("message", "")
+        url = data.get("url", "")
+        msg_type = data.get("type", "info")
+        if msg:
+            self.announcement_banner.set_message(msg, url, msg_type)
+
     def setup_ui(self):
         self.base_widget = QWidget()
         self.setCentralWidget(self.base_widget)
@@ -81,6 +113,17 @@ class UiSetupFeatures:
         self.main_layout.setSpacing(0)
         
         self.page_stack = QStackedWidget()
+        
+        self.announcement_banner = AnnouncementBanner(self.main_content_container)
+        self.announcement_banner.hide()
+        self.main_layout.addWidget(self.announcement_banner)
+        
+        
+        self.broadcast_url = "https://gist.github.com/rwnk-12/e20e0c4ace0ac4881af70fa96db62d60/raw"
+        self.broadcast_task = BroadcastFetchTask(self.broadcast_url)
+        self.broadcast_task.signals.finished.connect(self._on_broadcast_fetched)
+        QThreadPool.globalInstance().start(self.broadcast_task)
+        
         self.page_stack.currentChanged.connect(self._on_page_changed)
         self.main_layout.addWidget(self.page_stack, 1)
 
@@ -336,7 +379,7 @@ class UiSetupFeatures:
 
         sidebar_layout.addStretch()
 
-        version_label = QLabel("v1.0.1")
+        version_label = QLabel("v1.0.2")
         version_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         version_label.setStyleSheet("color: #777; font-size: 8pt; background-color: transparent; padding-bottom: 5px;")
         sidebar_layout.addWidget(version_label)
@@ -435,7 +478,24 @@ class UiSetupFeatures:
 
         self.quality_info_badge.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
         self.quality_info_badge.setMinimumHeight(26)
-        self.quality_info_badge.setText("Make Sure Wrapper is running")
+        
+        try:
+            with open('config.yaml', 'r') as f:
+                init_config = yaml.safe_load(f) or {}
+        except FileNotFoundError:
+            init_config = {}
+            
+        initial_quality = init_config.get('preferred-quality', 'ALAC').lower()
+        if 'aac' in initial_quality:
+            if init_config.get('media-user-token'):
+                self.quality_info_badge.setText("Token Filled")
+                self.quality_info_badge.setToolTip("Apple Music web token is configured.")
+            else:
+                self.quality_info_badge.setText("Token Required. Click here to set it up if not already configured.")
+                self.quality_info_badge.setToolTip("Apple Music web token required for AAC downloads")
+        else:
+            self.quality_info_badge.setText("Make Sure Wrapper is running")
+            self.quality_info_badge.setToolTip("Wrapper (decryptor) required for ALAC and Dolby Atmos downloads")
 
         controls_layout.addWidget(self.quality_info_badge, 0, Qt.AlignmentFlag.AlignLeft)
 

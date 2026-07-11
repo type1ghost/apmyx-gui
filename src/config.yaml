@@ -36,6 +36,6 @@ dl-albumcover-for-playlist: true
 use-song-metadata-for-playlist-numbering: false
 mv-audio-type: atmos
 mv-max: 2160
-storefront: ''
+storefront: 
 preferred-quality: AAC
 mv-file-format: '{ArtistName} - {VideoName} [{ReleaseYear}]'

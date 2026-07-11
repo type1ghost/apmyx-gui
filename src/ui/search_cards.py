@@ -502,10 +502,28 @@ class SearchResultCard(QWidget):
         self.selection_overlay.setGeometry(0, 0, 180, 180)
         self.selection_overlay.hide()
 
-        self.hi_res_label = QLabel("HI-RES", self.artwork_container)
-        self.hi_res_label.setStyleSheet(HI_RES_TAG_ARTWORK_STYLESHEET)
-        self.hi_res_label.adjustSize()
-        self.hi_res_label.move(8, 8)
+        hires_img_path = resource_path('src/assets/hires.jpg')
+        self.hi_res_label = QLabel(self.artwork_container)
+        
+        if os.path.exists(hires_img_path):
+            pm = QPixmap(hires_img_path).scaled(30, 30, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
+            mask = QBitmap(pm.size())
+            mask.fill(Qt.GlobalColor.color0)
+            p = QPainter(mask)
+            p.setRenderHint(QPainter.RenderHint.Antialiasing)
+            p.setBrush(Qt.GlobalColor.color1)
+            p.setPen(Qt.PenStyle.NoPen)
+            p.drawRoundedRect(0, 0, 60, 60, 12, 12)
+            p.end()
+            pm.setMask(mask)
+            self.hi_res_label.setPixmap(pm)
+            self.hi_res_label.move(0, 0)
+        else:
+            self.hi_res_label.setText("HI-RES")
+            self.hi_res_label.setStyleSheet(HI_RES_TAG_ARTWORK_STYLESHEET)
+            self.hi_res_label.adjustSize()
+            self.hi_res_label.move(8, 8)
+            
         self.hi_res_label.hide()
 
         if "hi-res-lossless" in self.result_data.get('audioTraits', []):

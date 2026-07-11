@@ -211,7 +211,6 @@ class Player(QObject):
             self._stopping = False
 
     def _clear_media_source(self):
-        """Safely clear the media source to avoid crashes"""
         if self._is_destroyed:
             return
         try:
@@ -309,7 +308,6 @@ class Player(QObject):
             fp = self.current_preview_file
             self.current_preview_file = None
             logger.debug(f"Player._cleanup_current_preview(): schedule delete {fp}")
-            # Delay file deletion to ensure it's not in use
             QTimer.singleShot(200, lambda: self._delete_preview_file(fp))
 
     def _delete_preview_file(self, filepath):
@@ -340,10 +338,8 @@ class Player(QObject):
         logger.info("Player.cleanup(): begin")
         self._is_destroyed = True
         
-        # Stop everything first
         self.stop()
         
-        # Disconnect all signals to prevent callbacks after cleanup
         try:
             self._player.playbackStateChanged.disconnect()
             self._player.positionChanged.disconnect()
@@ -352,7 +348,6 @@ class Player(QObject):
         except Exception as e:
             logger.debug(f"Player.cleanup(): error disconnecting signals: {e}")
         
-        # Clean up all preview files
         self._cleanup_all_previews()
         
         logger.info("Player.cleanup(): end")

@@ -252,7 +252,6 @@ class SearchLineEdit(QWidget):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
 
-        # Draw border
         if self._is_focused:
             pen = QPen(QColor("#fd576b"), 1.5)
         else:
@@ -265,7 +264,6 @@ class SearchLineEdit(QWidget):
         icon_rect = QRect(10, (self.height() - icon_size)//2, icon_size, icon_size)
         
         if self._loading:
-            # Draw segmented spinner
             cx = icon_rect.center().x()
             cy = icon_rect.center().y()
             radius_outer = icon_size * 0.48
@@ -285,7 +283,6 @@ class SearchLineEdit(QWidget):
                 y2 = cy + radius_outer * math.sin(angle)
                 painter.drawLine(QPointF(x1, y1), QPointF(x2, y2))
         else:
-            # Draw the magnifier icon
             icon_pen = QPen(QColor("#fd576b"), 2)
             icon_pen.setCapStyle(Qt.PenCapStyle.RoundCap)
             painter.setPen(icon_pen)
